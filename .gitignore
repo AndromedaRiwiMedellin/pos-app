@@ -1,0 +1,86 @@
+# ==========================================
+# ARCHIVOS DEL SISTEMA (Ignorar basura del OS)
+# ==========================================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# ==========================================
+# ARCHIVOS DEL ENTORNO / DATOS DEL SISTEMA
+# ==========================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln.docstates
+
+# ==========================================
+# INFORMACIÓN DELICADA (¡LO MÁS IMPORTANTE!)
+# ==========================================
+# Archivos de variables de entorno (Contraseñas, JWT keys, API keys, etc.)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+appsettings.Development.json
+appsettings.json
+
+# Archivos de configuración de conexión local
+config.json
+secrets.json
+
+# Llaves privadas, certificados y tokens
+*.pem
+*.key
+*.pub
+*.cert
+*.pfx
+jwt.txt
+token.txt
+
+# ==========================================
+# JAVASCRIPT / NODE JAVASCRIPT
+# ==========================================
+# Carpetas gigantes de dependencias (se recuperan con npm install)
+node_modules/
+/jspm_packages/
+.npm/
+.eslintcache
+
+# Carpetas de compilación / producción
+dist/
+build/
+.next/
+out/
+
+# ==========================================
+# .NET / C# / ASP.NET CORE
+# ==========================================
+# Carpetas de compilación de C#
+bin/
+obj/
+
+# Archivos de usuario de Visual Studio
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos generados por Rider / Visual Studio Code
+.cr/
+_ReSharper*/
+
+# ==========================================
+# BASES DE DATOS Y DOCKER
+# ==========================================
+# Archivos de bases de datos locales (SQLite, MySQL volcados, etc.)
+*.db
+*.sqlite
+*.sql
+.data/
+
+# Archivos de configuración local de Docker si contienen contraseñas
+docker-compose.override.yml
