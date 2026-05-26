@@ -7,6 +7,10 @@ import { fetchEvents, fetchEventDetails, purchasePosTickets } from '../services/
 
 function POS() {
   const [email, setEmail] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [userStatus, setUserStatus] = useState(null)
+  
   const [events, setEvents] = useState([])
   const [selectedEventId, setSelectedEventId] = useState('')
   const [eventDetails, setEventDetails] = useState(null)
@@ -37,11 +41,19 @@ function POS() {
 
   const handleConfirm = async () => {
     if (!email || !selectedEventId || !selectedAreaId || selectedSeats.length === 0) return;
+    if (userStatus === 'new' && !fullName) {
+      alert('Por favor ingrese el nombre completo del cliente.');
+      return;
+    }
+    
     try {
-      await purchasePosTickets(email, selectedEventId, selectedAreaId, selectedSeats)
+      await purchasePosTickets(email, fullName, phone, selectedEventId, selectedAreaId, selectedSeats)
       alert('Venta exitosa! Boleta enviada y cargada a la cuenta.')
       setSelectedSeats([])
       setEmail('')
+      setFullName('')
+      setPhone('')
+      setUserStatus(null)
       // Refresh event details to update available seats
       const data = await fetchEventDetails(selectedEventId)
       setEventDetails(data)
@@ -57,8 +69,43 @@ function POS() {
       <div style={{ background: 'var(--social-bg)', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
         <EmailInput
           email={email}
-          onChange={setEmail}
+          onChange={(v) => { setEmail(v); setUserStatus(null); }}
+          onUserFound={(name) => { setUserStatus('found'); setFullName(name); }}
+          onNewUser={() => { setUserStatus('new'); setFullName(''); setPhone(''); }}
         />
+
+        {userStatus === 'new' && (
+          <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Nombre Completo *</label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Ej. Juan Pérez"
+                style={{
+                  width: '100%', padding: '0.75rem', fontSize: '1rem',
+                  border: '1px solid var(--border)', borderRadius: '6px',
+                  background: 'var(--bg)', color: 'var(--text-h)'
+                }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Teléfono (Opcional)</label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Ej. 3001234567"
+                style={{
+                  width: '100%', padding: '0.75rem', fontSize: '1rem',
+                  border: '1px solid var(--border)', borderRadius: '6px',
+                  background: 'var(--bg)', color: 'var(--text-h)'
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         <EventSelector
           events={events}

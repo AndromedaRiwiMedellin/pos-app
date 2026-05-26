@@ -12,11 +12,17 @@ export const fetchEventDetails = async (id) => {
   return response.json();
 };
 
-export const purchasePosTickets = async (email, eventId, areaId, seats) => {
+export const checkEmail = async (email) => {
+  const response = await fetch(`${API_URL}/auth/check-email?email=${encodeURIComponent(email)}`);
+  if (!response.ok) throw new Error('Failed to check email');
+  return response.json();
+};
+
+export const purchasePosTickets = async (email, fullName, phone, eventId, areaId, seats) => {
   const response = await fetch(`${API_URL}/tickets/purchase-pos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, eventId, areaId, seats })
+    body: JSON.stringify({ email, fullName, phone, eventId, areaId, seats })
   });
   if (!response.ok) throw new Error('Failed to purchase tickets');
   return response.json();
