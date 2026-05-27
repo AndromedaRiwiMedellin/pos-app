@@ -32,7 +32,7 @@ jobs:
         run: |
           ls -la
           REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          docker build -f Dockerfile -t ghcr.io/${REPO}:latest .
+          docker build --build-arg VITE_API_URL=${{ vars.VITE_API_URL }} -f Dockerfile -t ghcr.io/${REPO}:latest .
           docker push ghcr.io/${REPO}:latest
   deploy:
     needs: build-and-push
