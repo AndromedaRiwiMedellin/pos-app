@@ -40,6 +40,7 @@ echo ""
 
 exec "$CHROME" \
     --kiosk-printing \
+    --user-data-dir=/tmp/pos-kiosk \
     --no-first-run \
     --disable-translate \
     --disable-infobars \
