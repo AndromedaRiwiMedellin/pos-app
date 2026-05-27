@@ -4,7 +4,8 @@ import EventSelector from '../components/EventSelector'
 import SeatMap from '../components/SeatMap'
 import OrderSummary from '../components/OrderSummary'
 import TicketPrint from '../components/TicketPrint/TicketPrint'
-import { fetchEvents, fetchEventDetails, purchasePosTickets, fetchTicket, printTicketDirect } from '../services/api'
+import { usePrint } from '../hooks/usePrint'
+import { fetchEvents, fetchEventDetails, purchasePosTickets, fetchTicket } from '../services/api'
 
 function POS() {
   const [email, setEmail] = useState('')
@@ -23,6 +24,8 @@ function POS() {
   const [printTicket, setPrintTicket] = useState(null)
   const [loadingPrint, setLoadingPrint] = useState(false)
   const [printStatus, setPrintStatus] = useState(null)   // { type: 'info'|'error'|'ok', msg }
+
+  const { printRef, print } = usePrint()
 
   useEffect(() => {
     fetchEvents().then(setEvents).catch(console.error)
@@ -82,17 +85,20 @@ function POS() {
 
   const handlePrintTicket = async (ticketId) => {
     setLoadingPrint(true)
-    setPrintStatus({ type: 'info', msg: '⏳ Enviando a impresora...' })
+    setPrintStatus({ type: 'info', msg: 'Cargando ticket...' })
     try {
-      // Cargar vista previa
       const data = await fetchTicket(ticketId)
       setPrintTicket(data)
-      // Llamar al backend para imprimir directo via CUPS (sin diálogo)
-      const result = await printTicketDirect(ticketId)
-      setPrintStatus({ type: 'ok', msg: result.message })
+      // Dar un tick para que React renderice antes de imprimir
+      setTimeout(() => {
+        print({
+          onStatus: (msg) => setPrintStatus({ type: 'info', msg }),
+          onError:  (msg) => { setPrintStatus({ type: 'error', msg }); setLoadingPrint(false) },
+          onDone:   ()    => { setLoadingPrint(false) }
+        })
+      }, 120)
     } catch (error) {
-      setPrintStatus({ type: 'error', msg: `❌ ${error.message}` })
-    } finally {
+      setPrintStatus({ type: 'error', msg: `Error al cargar ticket: ${error.message}` })
       setLoadingPrint(false)
     }
   }
