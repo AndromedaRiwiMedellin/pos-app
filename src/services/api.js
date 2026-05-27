@@ -27,3 +27,16 @@ export const purchasePosTickets = async (email, fullName, phone, eventId, areaId
   if (!response.ok) throw new Error('Failed to purchase tickets');
   return response.json();
 };
+
+export const fetchTicket = async (id) => {
+  const response = await fetch(`${API_URL}/tickets/${id}`);
+  if (!response.ok) throw new Error('Failed to fetch ticket');
+  return response.json();
+};
+
+export const printTicketDirect = async (id) => {
+  const response = await fetch(`${API_URL}/tickets/${id}/print`, { method: 'POST' });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Error al imprimir');
+  return data;
+};
