@@ -18,11 +18,11 @@ export const checkEmail = async (email) => {
   return response.json();
 };
 
-export const purchasePosTickets = async (email, fullName, phone, eventId, areaId, seats) => {
+export const purchasePosTickets = async (email, fullName, phone, eventId, areaId, seats, sellerId) => {
   const response = await fetch(`${API_URL}/tickets/purchase-pos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, fullName, phone, eventId, areaId, seats })
+    body: JSON.stringify({ email, fullName, phone, eventId, areaId, seats, sellerId })
   });
   if (!response.ok) throw new Error('Failed to purchase tickets');
   return response.json();
@@ -39,4 +39,21 @@ export const printTicketDirect = async (id) => {
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || 'Error al imprimir');
   return data;
+};
+
+export const posLogin = async (email, password) => {
+  const response = await fetch(`${API_URL}/auth/pos-login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Error en el login');
+  return data;
+};
+
+export const fetchDailySales = async (sellerId) => {
+  const response = await fetch(`${API_URL}/tickets/daily-sales?sellerId=${sellerId}`);
+  if (!response.ok) throw new Error('Failed to fetch daily sales');
+  return response.json();
 };

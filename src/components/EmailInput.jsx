@@ -20,7 +20,7 @@ export default function EmailInput({ email, onChange, onUserFound, onNewUser }) 
         onNewUser()
       }
     } catch (err) {
-      setError('Error al verificar el correo.')
+      setError('Error verifying email.')
     } finally {
       setLoading(false)
     }
@@ -35,7 +35,7 @@ export default function EmailInput({ email, onChange, onUserFound, onNewUser }) 
   return (
     <div style={{ textAlign: 'left' }}>
       <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: '500', color: 'var(--text-main)' }}>
-        Correo Electrónico
+        Email Address
       </label>
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'stretch' }}>
         <div style={{ position: 'relative', flex: 1 }}>

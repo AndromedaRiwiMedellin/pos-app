@@ -47,7 +47,7 @@ export default function TicketPrint({ ticket }) {
       {/* Detalles */}
       <div className="ticket__details">
         <Row label="Fecha"    value={fmt(ticket.eventDate)} />
-        {ticket.seatNumber && <Row label="Asiento" value={ticket.seatNumber} />}
+        {ticket.seatNumber && <Row label="Seat" value={ticket.seatNumber} />}
         <Row label="Titular"  value={ticket.holderName} />
         <Row label="Compra"   value={fmt(ticket.purchasedAt)} />
       </div>

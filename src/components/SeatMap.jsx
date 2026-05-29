@@ -118,7 +118,7 @@ export default function SeatMap({ areas, selectedSeats, onSeatToggle }) {
                           transition: 'transform 0.15s ease',
                           color: isSelected ? 'var(--primary-dark)' : 'transparent' // Para el borde del SVG si es necesario
                         }}
-                        title={`Zona: ${zone.areaName} | Asiento: ${seat.seatNumber} | $${Number(zone.price).toLocaleString()}`}
+                        title={`Zone: ${zone.areaName} | Seat: ${seat.seatNumber} | $${Number(zone.price).toLocaleString()}`}
                         onMouseOver={(e) => !isSold && !isSelected && (e.currentTarget.style.transform = 'scale(1.2)')}
                         onMouseOut={(e) => !isSold && !isSelected && (e.currentTarget.style.transform = 'scale(1)')}
                       >
@@ -160,7 +160,7 @@ export default function SeatMap({ areas, selectedSeats, onSeatToggle }) {
         boxShadow: 'var(--shadow-sm)'
       }}>
         <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', textAlign: 'center', marginBottom: '1.5rem' }}>
-          <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary-dark)' }}>Seleccione un asiento</h4>
+          <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary-dark)' }}>Select a seat</h4>
           <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
             Haga clic en las sillas del mapa para elegir sus ubicaciones.
           </p>

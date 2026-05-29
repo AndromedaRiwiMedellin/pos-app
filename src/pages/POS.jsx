@@ -5,9 +5,9 @@ import SeatMap from '../components/SeatMap'
 import OrderSummary from '../components/OrderSummary'
 import TicketPrint from '../components/TicketPrint/TicketPrint'
 import { usePrint } from '../hooks/usePrint'
-import { fetchEvents, fetchEventDetails, purchasePosTickets, fetchTicket } from '../services/api'
+import { fetchEvents, fetchEventDetails, purchasePosTickets, fetchTicket, fetchDailySales } from '../services/api'
 
-function POS() {
+function POS({ user, onLogout }) {
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
@@ -24,11 +24,29 @@ function POS() {
   const [loadingPrint, setLoadingPrint] = useState(false)
   const [printStatus, setPrintStatus] = useState(null)
 
+  const [showActivity, setShowActivity] = useState(false)
+
   const { printRef, print } = usePrint()
+
+  const [dailyStats, setDailyStats] = useState(null)
+  const [loadingStats, setLoadingStats] = useState(true)
+
+  const loadDailySales = async () => {
+    if (!user?.userId) return;
+    try {
+      const data = await fetchDailySales(user.userId)
+      setDailyStats(data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingStats(false)
+    }
+  }
 
   useEffect(() => {
     fetchEvents().then(setEvents).catch(console.error)
-  }, [])
+    loadDailySales()
+  }, [user])
 
   useEffect(() => {
     if (selectedEventId) {
@@ -56,7 +74,7 @@ function POS() {
   const handleConfirm = async () => {
     if (!email || !selectedEventId || selectedSeats.length === 0) return
     if (userStatus === 'new' && !fullName) {
-      alert('Por favor ingrese el nombre completo del cliente.')
+      alert("Please enter the customer's full name.")
       return
     }
 
@@ -72,7 +90,7 @@ function POS() {
 
       // Procesar cada zona (Area) independientemente
       for (const areaId in grouped) {
-        const result = await purchasePosTickets(email, fullName, phone, selectedEventId, parseInt(areaId), grouped[areaId]);
+        const result = await purchasePosTickets(email, fullName, phone, selectedEventId, parseInt(areaId), grouped[areaId], user.userId);
         allPurchasedTickets = [...allPurchasedTickets, ...(result.tickets || [])];
       }
 
@@ -83,6 +101,7 @@ function POS() {
         const ticketData = await fetchTicket(allPurchasedTickets[0].id)
         setPrintTicket(ticketData)
         setLoadingPrint(false)
+        loadDailySales()
       }
 
       setSelectedSeats([])
@@ -94,13 +113,13 @@ function POS() {
       const data = await fetchEventDetails(selectedEventId)
       setEventDetails(data)
     } catch (error) {
-      alert('Error en la venta: ' + error.message)
+      alert('Sale error: ' + error.message)
     }
   }
 
   const handlePrintTicket = async (ticketId) => {
     setLoadingPrint(true)
-    setPrintStatus({ type: 'info', msg: 'Cargando ticket...' })
+    setPrintStatus({ type: 'info', msg: 'Loading ticket...' })
     try {
       const data = await fetchTicket(ticketId)
       setPrintTicket(data)
@@ -112,7 +131,7 @@ function POS() {
         })
       }, 120)
     } catch (error) {
-      setPrintStatus({ type: 'error', msg: `Error al cargar ticket: ${error.message}` })
+      setPrintStatus({ type: 'error', msg: `Error loading ticket: ${error.message}` })
       setLoadingPrint(false)
     }
   }
@@ -159,6 +178,18 @@ function POS() {
             Orbix <span style={{ color: 'var(--accent)', fontWeight: '500' }}>POS</span>
           </h1>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{ color: 'var(--surface)', fontSize: '0.95rem' }}>
+            <span style={{ color: 'var(--text-light)' }}>User:</span> {user?.fullName || user?.email || 'Admin'}
+          </div>
+          <button onClick={onLogout} style={{
+            background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)',
+            padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.9rem',
+            transition: 'background 0.2s'
+          }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}>
+            Logout
+          </button>
+        </div>
       </header>
 
       <main style={{ flex: 1, padding: '2rem', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
@@ -180,9 +211,9 @@ function POS() {
             }}>
               ✓
             </div>
-            <h2 style={{ color: 'var(--primary-dark)', marginBottom: '0.5rem', fontSize: '2rem' }}>¡Venta Exitosa!</h2>
+            <h2 style={{ color: 'var(--primary-dark)', marginBottom: '0.5rem', fontSize: '2rem' }}>Sale Successful!</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '2.5rem' }}>
-              Se han generado {purchasedTickets.length} ticket(s) para esta orden.
+              {purchasedTickets.length} ticket(s) have been generated for this order.
             </p>
 
             {printStatus && (
@@ -212,7 +243,7 @@ function POS() {
                       Ticket #{t.id.slice(0, 8).toUpperCase()}
                     </div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                      Asiento {t.seatNumber}
+                      Seat {t.seatNumber}
                     </div>
                   </div>
                   <button
@@ -233,7 +264,7 @@ function POS() {
                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                     </svg>
-                    {loadingPrint ? 'Procesando...' : 'Imprimir Ticket'}
+                    {loadingPrint ? 'Processing...' : 'Print Ticket'}
                   </button>
                 </div>
               ))}
@@ -258,19 +289,99 @@ function POS() {
               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
-              Nueva Venta
+              New Sale
             </button>
           </div>
         ) : (
           /* ── Interfaz Principal (2 Columnas) ── */
-          <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {/* Dashboard superior */}
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, background: 'var(--surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: '250px' }}>
+                <div>
+                  <h3 style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '0.25rem', fontWeight: '500' }}>Tickets Sold Today</h3>
+                  <div style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--primary-dark)' }}>
+                    {loadingStats ? '...' : dailyStats?.totalTickets || 0}
+                  </div>
+                </div>
+                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent)', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>
+                </div>
+              </div>
+              <div style={{ flex: 1, background: 'var(--surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: '250px' }}>
+                <div>
+                  <h3 style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '0.25rem', fontWeight: '500' }}>Today's Revenue</h3>
+                  <div style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--primary-dark)' }}>
+                    ${loadingStats ? '...' : (dailyStats?.totalRevenue || 0).toLocaleString()}
+                  </div>
+                </div>
+                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--success-bg)', color: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Actividad Reciente */}
+            {dailyStats?.activity && dailyStats.activity.length > 0 && (
+              <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+                <div 
+                  onClick={() => setShowActivity(!showActivity)}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                >
+                  <h3 style={{ fontSize: '1.1rem', color: 'var(--primary-dark)', margin: 0, fontWeight: '600' }}>Recent Activity</h3>
+                  <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: showActivity ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                {showActivity && (
+                  <div style={{ overflowX: 'auto', marginTop: '1.5rem', animation: 'fadeIn 0.2s ease-out' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                          <th style={{ padding: '0.75rem', color: 'var(--text-muted)', fontWeight: '500' }}>Time</th>
+                          <th style={{ padding: '0.75rem', color: 'var(--text-muted)', fontWeight: '500' }}>Event</th>
+                          <th style={{ padding: '0.75rem', color: 'var(--text-muted)', fontWeight: '500' }}>Seat</th>
+                          <th style={{ padding: '0.75rem', color: 'var(--text-muted)', fontWeight: '500' }}>Buyer</th>
+                          <th style={{ padding: '0.75rem', color: 'var(--text-muted)', fontWeight: '500' }}>Price</th>
+                          <th style={{ padding: '0.75rem', color: 'var(--text-muted)', fontWeight: '500' }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dailyStats.activity.map((t) => (
+                          <tr key={t.id} style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+                            <td style={{ padding: '0.75rem' }}>{new Date(t.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                            <td style={{ padding: '0.75rem' }}>{t.eventTitle}</td>
+                            <td style={{ padding: '0.75rem' }}>{t.seat}</td>
+                            <td style={{ padding: '0.75rem' }}>{t.buyer}</td>
+                            <td style={{ padding: '0.75rem', color: 'var(--success)', fontWeight: '500' }}>${t.price}</td>
+                            <td style={{ padding: '0.75rem' }}>
+                              <button
+                                onClick={() => handlePrintTicket(t.id)}
+                                style={{ padding: '0.4rem 0.8rem', background: 'var(--bg)', color: 'var(--primary)', border: '1px solid var(--primary)', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.85rem' }}
+                              >
+                                Reprint
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
             {/* Columna Izquierda: Controles */}
             <div style={{ flex: '1 1 60%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               
               {/* Sección 1: Cliente */}
               <div style={{ background: 'var(--surface)', padding: '2rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
                 <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'var(--primary)' }}>1.</span> Datos del Cliente
+                  <span style={{ color: 'var(--primary)' }}>1.</span> Customer Details
                 </h2>
                 <EmailInput
                   email={email}
@@ -282,12 +393,12 @@ function POS() {
                 {userStatus === 'new' && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem', animation: 'fadeIn 0.3s ease-out' }}>
                     <div>
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem', color: 'var(--text-main)' }}>Nombre Completo *</label>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem', color: 'var(--text-main)' }}>Full Name *</label>
                       <input
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Ej. Juan Pérez"
+                        placeholder="e.g. John Doe"
                         style={{
                           width: '100%', padding: '0.75rem 1rem', fontSize: '1rem',
                           border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
@@ -299,12 +410,12 @@ function POS() {
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem', color: 'var(--text-main)' }}>Teléfono (Opcional)</label>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem', color: 'var(--text-main)' }}>Phone (Optional)</label>
                       <input
                         type="text"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Ej. 3001234567"
+                        placeholder="e.g. 3001234567"
                         style={{
                           width: '100%', padding: '0.75rem 1rem', fontSize: '1rem',
                           border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
@@ -322,7 +433,7 @@ function POS() {
               {/* Sección 2: Evento */}
               <div style={{ background: 'var(--surface)', padding: '2rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
                 <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'var(--primary)' }}>2.</span> Selección de Evento
+                  <span style={{ color: 'var(--primary)' }}>2.</span> Event Selection
                 </h2>
                 <EventSelector
                   events={events}
@@ -335,7 +446,7 @@ function POS() {
               {eventDetails && eventDetails.areas && eventDetails.areas.length > 0 && (
                 <div style={{ background: 'var(--surface)', padding: '2rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
                   <h2 style={{ fontSize: '1.25rem', marginBottom: '0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ color: 'var(--primary)' }}>3.</span> Ubicaciones del Teatro
+                    <span style={{ color: 'var(--primary)' }}>3.</span> Theater Seating
                   </h2>
                   <SeatMap
                     areas={eventDetails.areas}
@@ -355,6 +466,7 @@ function POS() {
                 onConfirm={handleConfirm}
               />
             </div>
+          </div>
           </div>
         )}
       </main>
