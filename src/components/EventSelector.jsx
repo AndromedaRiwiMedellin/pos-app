@@ -1,3 +1,5 @@
+import { getImageUrl } from '../services/api'
+
 export default function EventSelector({ events, selectedEventId, onSelectEvent }) {
   if (!events || events.length === 0) {
     return <div style={{ color: 'var(--text-muted)' }}>Loading events...</div>
@@ -8,6 +10,7 @@ export default function EventSelector({ events, selectedEventId, onSelectEvent }
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
         {events.map(ev => {
           const isSelected = selectedEventId === ev.id
+          const posterSrc = getImageUrl(ev.posterUrl)
           return (
             <div
               key={ev.id}
@@ -24,9 +27,9 @@ export default function EventSelector({ events, selectedEventId, onSelectEvent }
               }}
             >
               <div style={{ width: '100%', height: '280px', background: 'var(--bg)', position: 'relative' }}>
-                {ev.posterUrl ? (
+                {posterSrc ? (
                   <img 
-                    src={ev.posterUrl} 
+                    src={posterSrc} 
                     alt={ev.title} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />

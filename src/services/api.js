@@ -1,4 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL;
+export const API_URL = import.meta.env.VITE_API_URL;
+
+export const getImageUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  return `${API_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+};
 
 export const fetchEvents = async () => {
   const response = await fetch(`${API_URL}/events`);
