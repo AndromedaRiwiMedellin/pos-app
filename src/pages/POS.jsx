@@ -5,10 +5,12 @@ import EventSelector from '../components/EventSelector'
 import SeatMap from '../components/SeatMap'
 import OrderSummary from '../components/OrderSummary'
 import TicketPrint from '../components/TicketPrint/TicketPrint'
+import EmployeeProfile from '../components/EmployeeProfile'
 import { usePrint } from '../hooks/usePrint'
 import { fetchEvents, fetchEventDetails, purchasePosTickets, fetchTicket, fetchDailySales } from '../services/api'
 
 function POS({ user, onLogout }) {
+  const [currentView, setCurrentView] = useState('pos')
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
@@ -172,9 +174,13 @@ function POS({ user, onLogout }) {
           <div style={{ 
             width: '48px', 
             height: '48px', 
+            background: 'var(--surface, #ffffff)',
+            borderRadius: '10px',
+            padding: '4px',
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
           }}>
             <img 
               src={orbixLogo} 
@@ -187,9 +193,17 @@ function POS({ user, onLogout }) {
           </h1>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          <div style={{ color: 'var(--surface)', fontSize: '0.95rem' }}>
+          <div style={{ color: 'var(--surface)', fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => setCurrentView('profile')}>
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
             <span style={{ color: 'var(--text-light)' }}>User:</span> {user?.fullName || user?.email || 'Admin'}
           </div>
+          <button onClick={() => setCurrentView(currentView === 'pos' ? 'profile' : 'pos')} style={{
+            background: 'var(--accent)', color: 'var(--primary-dark)', border: 'none',
+            padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.9rem',
+            fontWeight: '600', transition: 'background 0.2s'
+          }}>
+            {currentView === 'pos' ? 'My Metrics' : 'Back to Sales'}
+          </button>
           <button onClick={onLogout} style={{
             background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)',
             padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.9rem',
@@ -200,6 +214,9 @@ function POS({ user, onLogout }) {
         </div>
       </header>
 
+      {currentView === 'profile' ? (
+        <EmployeeProfile user={user} />
+      ) : (
       <main style={{ flex: 1, padding: '2rem', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
         {purchasedTickets.length > 0 ? (
           /* ── Confirmación post-venta ── */
@@ -485,6 +502,7 @@ function POS({ user, onLogout }) {
           </div>
         )}
       </main>
+      )}
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-10px); }

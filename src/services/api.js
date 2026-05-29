@@ -52,8 +52,10 @@ export const posLogin = async (email, password) => {
   return data;
 };
 
-export const fetchDailySales = async (sellerId) => {
-  const response = await fetch(`${API_URL}/tickets/daily-sales?sellerId=${sellerId}`);
+export const fetchDailySales = async (sellerId, date = null) => {
+  let url = `${API_URL}/tickets/daily-sales?sellerId=${sellerId}`;
+  if (date) url += `&date=${date}`;
+  const response = await fetch(url);
   if (!response.ok) throw new Error('Failed to fetch daily sales');
   return response.json();
 };
