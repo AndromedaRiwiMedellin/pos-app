@@ -27,15 +27,9 @@ export default function Login({ onLogin }) {
       <div style={{ background: 'var(--surface)', padding: '3rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', width: '100%', maxWidth: '400px' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ 
-            background: 'var(--primary-dark)', 
-            width: '72px', 
-            height: '72px', 
-            borderRadius: '16px',
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
+            width: '90px', 
+            height: '90px', 
             margin: '0 auto 1rem',
-            padding: '10px'
           }}>
             <img src={orbixLogo} alt="Orbix Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
