@@ -24,40 +24,47 @@ function Row({ label, value }) {
   )
 }
 
-export default function TicketPrint({ ticket }) {
-  if (!ticket) return null
+export default function TicketPrint({ tickets }) {
+  if (!tickets || tickets.length === 0) return null
 
   return (
-    <div className="ticket">
-      {/* Header */}
-      <div className="ticket__header">
-        <div className="ticket__title">ORBIX</div>
-        <div className="ticket__event">{ticket.eventTitle}</div>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {tickets.map((ticket, index) => (
+        <div key={ticket.id || index} className="ticket">
+          {/* Header */}
+          <div className="ticket__header">
+            <div className="ticket__title">ORBIX</div>
+            <div className="ticket__event">{ticket.eventTitle}</div>
+          </div>
 
-      <SEP />
+          <SEP />
 
-      {/* QR */}
-      <div className="ticket__qr">
-        <QRCodeSVG value={ticket.qrCode} size={140} level="H" />
-      </div>
+          {/* QR */}
+          <div className="ticket__qr">
+            <QRCodeSVG value={ticket.qrCode} size={140} level="H" />
+          </div>
 
-      <SEP />
+          <SEP />
 
-      {/* Detalles */}
-      <div className="ticket__details">
-        <Row label="Fecha"    value={fmt(ticket.eventDate)} />
-        {ticket.seatNumber && <Row label="Seat" value={ticket.seatNumber} />}
-        <Row label="Titular"  value={ticket.holderName} />
-        <Row label="Compra"   value={fmt(ticket.purchasedAt)} />
-      </div>
+          {/* Detalles */}
+          <div className="ticket__details">
+            <Row label="Date"    value={fmt(ticket.eventDate)} />
+            {ticket.seatNumber && <Row label="Seat" value={ticket.seatNumber} />}
+            <Row label="Holder"  value={ticket.holderName} />
+            <Row label="Purchase" value={fmt(ticket.purchasedAt)} />
+          </div>
 
-      <SEP />
+          <SEP />
 
-      {/* Footer */}
-      <div className="ticket__footer">
-        #{ticket.id.slice(0, 8).toUpperCase()} · {ticket.status?.toUpperCase()}
-      </div>
+          {/* Footer */}
+          <div className="ticket__footer" style={{ marginBottom: '1rem' }}>
+            #{ticket.id.slice(0, 8).toUpperCase()} · {ticket.status?.toUpperCase()}
+          </div>
+          {index < tickets.length - 1 && (
+            <div style={{ margin: '1rem 0', borderTop: '2px dashed #000', width: '100%' }} />
+          )}
+        </div>
+      ))}
     </div>
   )
 }

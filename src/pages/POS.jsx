@@ -20,7 +20,7 @@ function POS({ user, onLogout }) {
 
   // Estado post-compra
   const [purchasedTickets, setPurchasedTickets] = useState([])
-  const [printTicket, setPrintTicket] = useState(null)
+  const [printTickets, setPrintTickets] = useState([])
   const [loadingPrint, setLoadingPrint] = useState(false)
   const [printStatus, setPrintStatus] = useState(null)
 
@@ -98,9 +98,17 @@ function POS({ user, onLogout }) {
 
       if (allPurchasedTickets.length > 0) {
         setLoadingPrint(true)
-        const ticketData = await fetchTicket(allPurchasedTickets[0].id)
-        setPrintTicket(ticketData)
-        setLoadingPrint(false)
+        const fetchedTickets = await Promise.all(
+          allPurchasedTickets.map(t => fetchTicket(t.id))
+        )
+        setPrintTickets(fetchedTickets)
+        setTimeout(() => {
+          print({
+            onStatus: (msg) => setPrintStatus({ type: 'info', msg }),
+            onError:  (msg) => { setPrintStatus({ type: 'error', msg }); setLoadingPrint(false) },
+            onDone:   ()    => { setLoadingPrint(false) }
+          })
+        }, 300)
         loadDailySales()
       }
 
@@ -122,7 +130,7 @@ function POS({ user, onLogout }) {
     setPrintStatus({ type: 'info', msg: 'Loading ticket...' })
     try {
       const data = await fetchTicket(ticketId)
-      setPrintTicket(data)
+      setPrintTickets([data])
       setTimeout(() => {
         print({
           onStatus: (msg) => setPrintStatus({ type: 'info', msg }),
@@ -138,7 +146,7 @@ function POS({ user, onLogout }) {
 
   const handleNewSale = () => {
     setPurchasedTickets([])
-    setPrintTicket(null)
+    setPrintTickets([])
     setPrintStatus(null)
     setSelectedEventId('')
     setEventDetails(null)
@@ -271,7 +279,7 @@ function POS({ user, onLogout }) {
             </div>
 
             <div ref={printRef} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-              {printTicket && <TicketPrint ticket={printTicket} />}
+              {printTickets.length > 0 && <TicketPrint tickets={printTickets} />}
             </div>
 
             <button
