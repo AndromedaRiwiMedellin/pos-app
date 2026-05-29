@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import orbixLogo from '../assets/orbix-logo.png'
 import EmailInput from '../components/EmailInput'
 import EventSelector from '../components/EventSelector'
 import SeatMap from '../components/SeatMap'
@@ -169,18 +170,21 @@ function POS({ user, onLogout }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ 
-            background: 'var(--accent)', 
-            color: 'var(--primary-dark)', 
-            width: '40px', 
-            height: '40px', 
-            borderRadius: '8px',
+            width: '44px', 
+            height: '44px', 
+            borderRadius: '10px',
+            overflow: 'hidden',
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            fontSize: '1.5rem',
-            fontWeight: 'bold'
+            background: 'rgba(255,255,255,0.12)',
+            padding: '4px'
           }}>
-            O
+            <img 
+              src={orbixLogo} 
+              alt="Orbix Logo" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+            />
           </div>
           <h1 style={{ color: 'var(--surface)', fontSize: '1.5rem', margin: 0, letterSpacing: '-0.5px' }}>
             Orbix <span style={{ color: 'var(--accent)', fontWeight: '500' }}>POS</span>
@@ -360,7 +364,14 @@ function POS({ user, onLogout }) {
                       <tbody>
                         {dailyStats.activity.map((t) => (
                           <tr key={t.id} style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-                            <td style={{ padding: '0.75rem' }}>{new Date(t.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                            <td style={{ padding: '0.75rem', whiteSpace: 'nowrap' }}>
+                              <div style={{ fontWeight: '500', color: 'var(--text-main)', fontSize: '0.9rem' }}>
+                                {new Date(t.time).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                              </div>
+                              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                                {new Date(t.time).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                              </div>
+                            </td>
                             <td style={{ padding: '0.75rem' }}>{t.eventTitle}</td>
                             <td style={{ padding: '0.75rem' }}>{t.seat}</td>
                             <td style={{ padding: '0.75rem' }}>{t.buyer}</td>

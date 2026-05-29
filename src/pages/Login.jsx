@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import orbixLogo from '../assets/orbix-logo.png'
 import { posLogin } from '../services/api'
 
 export default function Login({ onLogin }) {
@@ -27,18 +28,16 @@ export default function Login({ onLogin }) {
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ 
             background: 'var(--primary-dark)', 
-            color: 'var(--accent)', 
-            width: '60px', 
-            height: '60px', 
-            borderRadius: '12px',
+            width: '72px', 
+            height: '72px', 
+            borderRadius: '16px',
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            fontSize: '2rem',
-            fontWeight: 'bold',
-            margin: '0 auto 1rem'
+            margin: '0 auto 1rem',
+            padding: '10px'
           }}>
-            O
+            <img src={orbixLogo} alt="Orbix Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <h1 style={{ color: 'var(--primary-dark)', fontSize: '2rem', margin: 0, letterSpacing: '-0.5px' }}>
             Orbix <span style={{ color: 'var(--primary)', fontWeight: '500' }}>POS</span>
