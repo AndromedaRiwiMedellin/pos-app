@@ -95,6 +95,10 @@ function POS({ user, onLogout }) {
       for (const areaId in grouped) {
         const result = await purchasePosTickets(email, fullName, phone, selectedEventId, parseInt(areaId), grouped[areaId], user.userId);
         allPurchasedTickets = [...allPurchasedTickets, ...(result.tickets || [])];
+        
+        if (result.emailErrors && result.emailErrors.length > 0) {
+          console.error("⚠️ Error enviando boletas por correo:", result.emailErrors);
+        }
       }
 
       setPurchasedTickets(allPurchasedTickets);
