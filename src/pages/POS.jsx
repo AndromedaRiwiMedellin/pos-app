@@ -170,15 +170,11 @@ function POS({ user, onLogout }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ 
-            width: '44px', 
-            height: '44px', 
-            borderRadius: '10px',
-            overflow: 'hidden',
+            width: '48px', 
+            height: '48px', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            background: 'rgba(255,255,255,0.12)',
-            padding: '4px'
           }}>
             <img 
               src={orbixLogo} 
