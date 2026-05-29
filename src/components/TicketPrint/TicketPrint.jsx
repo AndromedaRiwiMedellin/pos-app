@@ -31,7 +31,7 @@ export default function TicketPrint({ ticket }) {
     <div className="ticket">
       {/* Header */}
       <div className="ticket__header">
-        <div className="ticket__title">ANDROMEDA</div>
+        <div className="ticket__title">ORBIX</div>
         <div className="ticket__event">{ticket.eventTitle}</div>
       </div>
 

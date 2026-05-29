@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────
-# launch-pos.sh — Iniciador del kiosco de Taquilla Andromeda
+# launch-pos.sh — Iniciador del kiosco de Taquilla Orbix
 #
 # Lanza Chromium con --kiosk-printing para que window.print()
 # envíe DIRECTO a la impresora predeterminada sin diálogo.

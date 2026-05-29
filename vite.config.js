@@ -11,9 +11,9 @@ export default defineConfig({
         enabled: true // Allows testing PWA in dev mode
       },
       manifest: {
-        name: 'Andromeda POS',
-        short_name: 'Andromeda POS',
-        description: 'Taquilla de boletos para Andromeda Events',
+        name: 'Orbix POS',
+        short_name: 'Orbix POS',
+        description: 'Taquilla de boletos para Orbix Events',
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',
